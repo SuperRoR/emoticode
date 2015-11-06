@@ -1,0 +1,51 @@
+<section id="language-archive">
+  <div class="huge-column">
+    <div class="headblock">
+      <h1>
+        <%= link_to '<i class="icon-rss"></i>'.html_safe, language_feed_path(:language => @language.name ), :title => "#{@language.title} RSS feed.", :class => 'rss-big' %>        
+        <%= paged "#{@language.title} Snippets Archive" %>
+      </h1>
+
+      <%= render :partial => "follows/follow", :locals => { :type => :language, :object => @language, :clazz => 'followlang' }%>       
+
+      <% if @podium and @podium.count > 0 %>
+        <%
+          first, second, third = @podium
+          @podium = { :second => [ second, 2 ], :first => [ first, 1 ], :third => [ third, 3 ] }
+        %>
+        <div id="podium">
+          <h3>Most Active Users</h3>
+          <% @podium.each do |position,(user,number)| %>
+            <div class="bar <%= position %>">
+            <% if user %>
+            <div class="user">
+              <a href="<%= user_profile_path(username:user.username) %>" title="<%= user.username %> profile">
+                <%= avatar_tag user %>
+                <%= truncate user.username, :length => 15 %>
+              </a>              
+            </div>
+            <% end %>
+            <span><%= number %></span>
+          </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <center>
+      <%= adsense :slot => '9597895776', :width => 728, :height => 90 %>
+    </center>
+
+    <ul class="listing">
+      <%= render :partial => "source/listing", :collection => @sources, :as => 'source' %>
+    </ul>
+  </div>
+
+  <%= render :partial => 'layouts/sidebar', :locals => { with_heading: true } %>
+</section>
+
+<br style="clear:both"/>
+
+<section class="pager">
+  <%= will_paginate @sources %>
+</section>

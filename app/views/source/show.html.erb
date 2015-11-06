@@ -1,0 +1,69 @@
+<section id="source">
+  <div class="medium-column">
+    <div class="headblock">
+      <h1><%= @source.title %></h1>
+      
+      <%= render :partial => "adv/criteo728x90" %>
+
+      <div class="description">
+        <%=raw description(@source) %>
+      </div>
+
+      <ul class="buttons">
+        <% if signed_in? %>
+          <% if @current_user == @source.user or @current_user.is_admin? %>
+            <li>
+              <%= link_icon_to 'Edit', 'edit', source_edit_path(@source) %>
+            </li>
+            <li>
+              <%= link_icon_to 'Delete', 'trash', source_delete_path(@source), :data => { :confirm => 'Are you sure?' } %>
+            </li>
+          <% end %>
+        <% else %>
+          <li>
+            <%= link_icon_to_function "Fav It!", 'thumbs-up', 'showLoginModal()' %>
+          </li>
+        <% end %>
+        </li>
+        <li>
+          <%= link_icon_to 'Raw', 'file-text', raw_with_language_path( :language_name => @source.language.name, :source_name => @source.name ) %>
+        </li>
+
+        <li>
+          <%= link_icon_to_function "Embed", "expand", "$('#embed').modal();" %>
+        </li>
+      </ul>
+
+      <%=raw @source.highlight %>
+    </div>
+
+    <% related = @source.related(4) %>
+    <% if related.any? %>
+      <div class="related">
+        <h3>You might also like</h3>
+        <ul class="listing">
+          <%= render :partial => "source/listing", :collection => @source.related(4), :as => 'source' %>
+        </ul>
+      </div>
+      <br style="clear:both"/>
+    <% end %>
+
+    <%= render :partial => 'comments/box', :locals => { object: @source } %>
+  </div>
+
+  <%= render :partial => 'layouts/sidebar', :locals => { with_heading: false, source: @source } %>
+</section>
+
+<%= modal_dialog 'embed', 'Embed Me!' do %>
+  <p>Feel free to adjust iframe width and height according to your needs.</p>
+  <% 
+      iframe = "<iframe width=\"800px\" \n" +
+               "        src=\"#{source_embed_url( :language_name => @source.language.name, :source_name => @source.name )}\" \n" +
+               "        height=\"400px\" \n" +
+               "        frameborder=\"0\"> \n" +
+               "</iframe>"
+  %>
+  <%=raw Albino.colorize iframe, 'html' %>
+  <p>Here's how it will look like.</p>
+  <%=raw iframe %>
+<% end %>

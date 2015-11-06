@@ -1,0 +1,44 @@
+<div class="headblock ssummary">
+  <div class="avatar">
+    <a href="<%= user_profile_path(username:source.user.username) %>" title="<%= source.user.username %> profile" class="avatar">
+      <%= image_tag image_url(source.user.avatar), :height => '40', :width => '40', :alt => "#{source.user.username} avatar.", :class => 'imgavatar', :onerror => "this.src='#{image_url("/avatars/default.png")}';" %>
+    </a>
+  </div>
+
+  <p>
+  This snippet has been posted by <a href="<%= user_profile_path(username:source.user.username) %>" title="<%= @source.user.username %> profile"><%= source.user.username %></a>
+  <%= time_ago_in_words Time.at(source.created_at) %> ago in the <%= link_to_language source.language, :class => 'language' %> section.
+  </p>
+
+    <% if !signed_in? or @current_user != source.user %>
+      <%= render :partial => "follows/follow", :locals => { :type => :user, :object => source.user, :text => source.user.username } %> 
+    <% end %>
+
+    <%= render :partial => "follows/follow", :locals => { :type => :language, :object => source.language, :text => source.language.title } %> 
+
+  <div class="hseparator"></div>
+
+  <ul>
+    <li><span class="count"><%= source.views %></span><i class="icon-eye-open"></i></li>
+    <li>
+      <%
+        ttip = source.favorites_count.to_i > 0 ? "#{source.favorites_count} users favorited this snippet." : "Still no one favorited this snippet, be the first!"
+      %>
+      <span id="favcount-<%= source.id %>" class="count"><%= source.favorites_count %></span>
+      <% if signed_in? %>
+        <% if @current_user.favorite?(source) %>
+          <%= link_icon_to '', 'thumbs-down', unfavorite_path( id: source.id, format: :js ), id: "fav-#{source.id}", class: "notext ttip", :title => ttip, method: :post, remote: true  %>
+        <% else %>
+          <%= link_icon_to '', 'thumbs-up', favorite_path( id: source.id, format: :js ), id: "fav-#{source.id}", class: "notext ttip", :title => ttip, method: :post, remote: true  %>
+        <% end %>
+      <% else %>
+        <%= link_icon_to_function '', 'thumbs-up', 'showLoginModal()' %>
+      <% end %>
+    </li>
+    <li><span class="count"><%= source.comments_count %></span><i class="icon-comments"></i></li>
+  </ul>
+  <br style="clear:both;"/>    
+  <%= render :partial => 'layouts/social_share', :locals => { source: source } %>   
+  <div class="larrow"></div>      
+</div>    
+

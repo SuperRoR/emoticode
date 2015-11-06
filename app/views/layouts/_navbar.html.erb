@@ -1,0 +1,68 @@
+<nav id="topnav">
+  <ul>
+    <li class="home">
+      <a href="/" title="emoticode.net">emoticode.net</a>
+    </li>
+    <li class="user">
+
+      <div id="hiddenmenu" style="display: none;">
+        <a class="important orange" href="http://feeds.feedburner.com/emoticode" title="RSS Feed" target="_blank"><i class="icon-rss"></i></a>
+        <div id="showalllangs" style="display: inline;">
+          <a class="important red" href="#" title="Browse all Languages">Browse <i class="icon-sort-down"></i></a>
+          <div id="alllangs" style="display: none;">
+            <%= render :partial => "layouts/language_browser" %>
+          </div>
+        </div>
+      </div>
+
+      <div id="usermenu">
+        <% if signed_in? %>
+          <%= link_icon_to( 'Add a Snippet', 'plus', source_new_path, :class => 'important' ) %>
+          <div id="showcp">
+            <a href="#" onclick="return false;" class="important blue"><i class="icon-gear"></i></a>
+            <div id="cp" style="display:none">
+              <ul>
+                <li><%= link_to( 'Profile', user_profile_path(username: @current_user.username ) ) %></li>
+                <li><%= link_to( 'Settings',  user_settings_path ) %></li>
+                <li class="divider"></li>
+                <li><%= link_to( 'My Snippets', user_snippets_path ) %></li>
+                <li><%= link_to( 'My Favorites', user_favorites_path ) %></li>
+                <li class="divider"></li>
+                <li><%= link_to( 'Logout', sign_out_path, :method => :delete ) %></li>
+              </ul>
+            </div>
+          </div>
+        <% else %>
+          <%= link_to( 'Create a Profile', sign_up_path, :class => 'important' ) %> or <%= link_to( 'Login', sign_in_path ) %>
+        <% end %>
+      </div>
+    </li>
+  </ul>
+</nav>
+<nav id="subnav">
+  <ul>
+    <li class="left">
+      <a href="http://feeds.feedburner.com/emoticode" target="_blank" title="RSS Feed">Feed</a>
+    </li>
+    <% if Post.count > 0 %>
+    <li id="browse_blog">
+      <%= link_to 'Blog <i class="icon-sort-down"></i>'.html_safe, '/blog/', :title => 'Browse the Blog' %> 
+      <div id="blog_cats" style="display:none;">
+        <%= render :partial => "layouts/blog_browser" %>        
+      </div>
+    </li>
+    <% end %>
+    <li id="browse_langs">
+      <a href="#" onclick="return false">Browse Languages <i class="icon-sort-down"></i></a>
+      <div id="all_langs" style="display:none;">
+        <%= render :partial => "layouts/language_browser" %>
+      </div>
+    </li>
+    <% unless signed_in? %>
+    <li class="right">
+      Connect with
+      <%= link_icon_to( 'Facebook', 'facebook', "/auth/facebook", { :title => "Login with your Facebook account.", :class => 'small_facebook_connect' }) %>
+      <%= link_icon_to( 'GitHub', 'github', "/auth/github", { :title => "Login with your Github account.", :class => 'small_github_connect' }) %></li>
+    <% end %>
+  </ul>
+</nav>

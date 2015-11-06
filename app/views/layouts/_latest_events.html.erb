@@ -1,0 +1,9 @@
+<% cache "latest_events_view", skip_digest: true do %>
+  <div class="heading">
+    <h3>Latest Events</h3>
+  </div>
+  <ul class="events">
+    <%= render :partial => "events/event", :collection => @events, :as => 'event' %>
+  </ul>
+  <br style="clear:both"/>
+<% end %>

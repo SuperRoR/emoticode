@@ -1,0 +1,157 @@
+<section id="profile">
+  <div class="huge-column">
+    <div id="userpanel">
+      <h1>
+        <%= image_tag image_url(@user.avatar), :height => '40', :width => '40', :alt => "#{@user.username} avatar.", :class => 'imgavatar', :onerror => "this.src='#{image_url("/avatars/default.png")}';" %>
+        <%= @user.username %>
+        <% if signed_in? and @current_user.is_admin? %>
+          <ul class="admin">
+            <li>
+              <%= link_icon_to 'Delete', 'trash', user_delete_path(@user), :class => 'pure-button pure-button-red', :data => { :confirm => 'Are you sure?' } %>
+            </li>
+            <li>
+              <% if @user.is_banned? %>
+                <%= link_icon_to 'Unban', 'ban-circle', user_unban_path(@user), :class => 'pure-button pure-button-green', :data => { :confirm => 'Are you sure?' } %>
+              <% else %>
+                <%= link_icon_to 'Ban', 'ban-circle', user_ban_path(@user), :class => 'pure-button pure-button-blue', :data => { :confirm => 'Are you sure?' } %>
+              <% end %>
+            </li>
+        </ul>
+      <% end %>
+      </h1>
+
+      <div class="aboutme">
+        <% unless @user.profile.aboutme.nil? or @user.profile.aboutme.empty? %>
+          <%= @user.profile.aboutme %>
+        <% else %>
+          <em>Nothing to see here :/</em>
+        <% end %>
+      </div>
+        <ul class="icons">
+          <li>
+            <%= link_icon_to 'Feed', 'rss', user_feed_path(:username=>@user.username), :title => "#{@user.username} RSS feed." %>
+          </li>
+          <% unless @user.profile.website.nil? or @user.profile.website.strip.empty? %>
+            <li>
+              <%= link_icon_to 'Website', 'globe', @user.profile.website, :target => '_blank', :rel => 'nofollow' %>
+            </li>
+          <% end %>
+          <% @user.authorizations.each do |auth| %>
+            <li>
+              <%= link_icon_to auth.provider.capitalize, auth.provider, auth.url, :target => '_blank', :title => "Visit #{@user.username} #{auth.provider.capitalize} profile." %>
+            </li>
+          <% end %>
+          <% unless @user.profile.gplus.nil? or @user.profile.gplus.strip.empty? %>
+            <li>
+             <%= link_icon_to 'Google+', 'google-plus', "#{@user.profile.gplus}?rel=author", :title => "Visit #{@user.username} Google+ profile." %>
+            </li>
+          <% end %>
+          <li class="r">
+            <span class="ttip" title="This user's snippets total views.">
+              <i class="icon-eye-open"></i> <%= @user.sources.sum :views %>
+            </span>
+          </li>
+          <li class="r">
+            <span class="ttip" title="This user's snippets total count.">
+              <i class="icon-file-text"></i> <%= @user.sources.count %>
+            </span>
+          </li>
+          <li class="r">
+            <% if !signed_in? or @current_user != @user %>
+              <%= render :partial => "follows/follow", :locals => { :type => :user, :object => @user } %> 
+            <% end %>
+          </li>
+        </ul>
+    </div>
+
+    <ul id="profile_tabs">
+      <%
+        tabs = [
+          { :text => 'Snippets',  :link => user_profile_path(username:@user.username),   :title => 'View user latest snippets.',        :current => @box == 'sources'   },
+          { :text => 'Following', :link => user_following_path(username:@user.username), :title => 'View what this user is following.', :current => @box == 'following' },
+          { :text => 'Followers', :link => user_followers_path(username:@user.username), :title => 'View who is following this user.',  :current => @box == 'followers' }          
+        ]
+
+        tabs.each do |tab|
+        %>
+        <li>
+          <%= link_to tab[:text], tab[:link], :title => tab[:title], :class => tab[:current] ? 'ttip current' : 'ttip' %>      
+          <% if tab[:current] %>
+            <div class="darrow"></div>
+          <% end %>
+        </li>
+        <%
+        end
+      %>
+    </ul>
+    <br style="clear: both;"/>
+
+    <%= render :partial => "profile/#{@box}" %>
+
+    <%= render :partial => 'comments/box', :locals => { object: @user.profile, heading: "Leave a message to #{@user.username}" } %>
+
+  </div>
+
+  <div id="sidebar">
+    <div class="heading blue">
+      <h3>Rate Me!</h3>
+    </div>
+    <div class="rating">
+      <%= @user.username %> has an average rating of <%= ( @user.rating.average * 100 ).round 1 %>%
+      <div class="stars">
+        <% rating_stars( @user.rating ).each_with_index do |star,n| %>
+          <% if signed_in? %>
+          <%= form_for Vote.new, :remote => true do |f| %>
+            <%= f.hidden_field :rating_id, as: :hidden, :value => @user.rating.id %>
+            <%= f.hidden_field :vote,      as: :hidden, :value => 5 - n %>
+            <%= f.submit id: "submit_#{n}", style: 'display: none;' %>
+            <%= link_to_function star.html_safe, "$('#submit_#{n}').click(); return false;" %>
+          <% end %>
+          <% else %>
+            <%= link_to_function star.html_safe, 'showLoginModal()' %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <% if signed_in? and @user == @current_user %>
+      <div class="heading">
+        <h3>Get Your Badge!</h3>
+      </div>
+
+      <span class="badge">
+        <%= link_to_function "Show Embed Code", "$('#badge').modal();", :class => 'pure-button pure-button-green' %>
+      </span>
+      <%= modal_dialog 'badge', 'Get Your Badge!' do %>
+        <textarea><iframe src="<%= user_badge_url(:username => @user.username) %>" height="350" frameborder="0" ></iframe></textarea>
+        <iframe src="<%= user_badge_url(:username => @user.username) %>" height="350" frameborder="0" ></iframe>
+      <% end %>
+    <% end %>
+
+    <div class="heading orange">
+      <h3>Languages</h3>
+    </div>
+    <div class="languages headblock">
+      <% stats = @user.language_statistics %>
+      <% unless stats.empty? %>
+        <ul>
+          <% stats.each do |language,perc| %>
+            <% if perc >= 0.3 %>
+            <li>
+              <div class="bar">
+                <div class="percentage" style="width: <%= perc %>%">
+                  <span><%= link_to_language language %> ( <%= perc %> % )</span>
+                </div>
+              </div>
+            </li>
+            <% end %>
+          <% end %>
+        </ul>
+      <% else %>
+        <em>Nothing posted yet :/</em>
+      <% end %>
+    </div>
+
+  </div>
+
+</section>

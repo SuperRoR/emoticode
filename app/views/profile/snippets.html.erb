@@ -1,0 +1,17 @@
+<section id="snippets-archive">
+  <div class="huge-column">
+    <h1>Your Snippets</h1>
+    <ul class="listing">
+      <%= render :partial => "source/listing", :collection => @sources, :as => 'source' %>
+    </ul>
+  </div>
+
+  <%= render :partial => 'layouts/sidebar', :locals => { with_heading: true } %>
+</section>
+
+<br style="clear:both"/>
+
+<section class="pager">
+  <%= will_paginate @sources %>
+</section>
+

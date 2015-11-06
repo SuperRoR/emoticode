@@ -1,0 +1,42 @@
+<% is_source_defined = defined?(source) %>
+<div id="sidebar">
+  <% if is_source_defined %>
+    <%= render :partial => 'source/sidebox', :locals => { source: source } %>   
+    
+    <%= render :partial => "adv/criteo300x250" %>    
+  <% end %>
+
+  <% if [ 'language', 'source' ].include? controller.controller_name %>
+    <% unless signed_in? %>
+      <%= link_icon_to_function 'Post a Snippet', 'plus-sign', 'showLoginModal()', :class => 'pure-button pure-button-green post-button' %>
+      <p>
+        Build up your personal collection of code snippets with ease and share them with the world!
+      </p>
+    <% end %>
+  <% end %>
+
+  <%= render :partial => 'layouts/social' %>
+  
+  <% unless is_source_defined %>  
+    <% if controller.class.name.start_with? 'Blog::' %>
+      <%= render :partial => 'layouts/blog_categories' %>    
+    <% end %>
+
+    <%= render :partial => 'layouts/latest_events' %>      
+  <% end %>
+
+  <% unless @cloud.nil? or @cloud.empty? %>
+    <% cache( "tag_cloud_for_#{request.original_url}", :expire => 3.days ) do %>
+    <div class="heading red">
+      <h3>Cloud</h3>
+    </div>
+    <div class="cloud">
+      <% tag_cloud(@cloud).each do |v,cloud| %>
+        <% tag,size,count = cloud %>
+        <%= link_to tag.value, search_path(what: tag.name), { :style => "font-size: #{size}px", :title => "The keyword #{tag.value} has #{count} elements." } %>
+      <% end %>
+    </div>
+    <% end %>
+  <% end %>
+</div>
+<br style="clear:both"/>

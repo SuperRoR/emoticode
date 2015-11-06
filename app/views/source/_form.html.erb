@@ -1,0 +1,41 @@
+<div id="source-<%= action %>" class="headblock">
+  <%= form_for source, :url => {:controller => 'source', :action => action }, :html => { :class => 'pure-form pure-form-aligned' } do |f| %>
+    <% source.errors.full_messages.each do |msg| %>
+      <p class="error"><%= msg %></p>
+    <% end %>
+    <% if flash[:error] %>
+      <% flash[:error].each do |error| %>
+        <p class="error"><%= error %></p>
+      <% end %>
+    <% end %>
+
+    <div class="head">
+      <%= collection_select( :source, :language_id, Language.order('title ASC'), :id, :title ) %>
+      <%= f.text_field :title, :placeholder => 'Title', :class => 'title' %>
+      <%= f.check_box(:private) %>
+      <%= f.label(:private, "Mark as Private") %>
+    </div>
+
+    <%= f.label(:description, "Description ( markdown powered )") %>
+    <%= f.text_area :description, :placeholder => 'Description', :class => 'description' %>
+    <div id="epiceditor"></div>
+    <%= f.text_area :text, :placeholder => 'Code', :class => 'code' %>
+
+    <%= f.submit "Save", :class => 'pure-button pure-button-primary' %>
+  <% end %>
+</div>
+<script>
+  $('#source_description').hide();
+  var editor = new EpicEditor({
+    textarea: 'source_description',
+    basePath: '/epiceditor',
+    clientSideStorage: false,
+    autogrow: true,
+
+    theme: {
+      base: '/themes/base/epiceditor.css',
+      preview: '/themes/preview/github.css',
+      editor: '/themes/editor/emoticode.css'
+    }
+  }).load();
+</script>

@@ -1,0 +1,22 @@
+<section id="search-archive">
+  <div class="huge-column">
+    <h1><%= paged "Search for '#{@phrase}'" %></h1>
+
+    <% if @sources.any? %>
+    <ul class="listing">
+      <%= render :partial => "source/listing", :collection => @sources, :as => 'source' %>
+    </ul>
+    <% else %>
+      <em>Nothing found.</em>
+    <% end %>
+  </div>
+
+  <%= render :partial => 'layouts/sidebar', :locals => { with_heading: true } %>
+</section>
+
+<br style="clear:both"/>
+
+<section class="pager">
+  <%= will_paginate @sources %>
+</section>
+

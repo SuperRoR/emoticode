@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= page_title %></title>
+  <%= stylesheet_link_tag    "application" %>
+  <%= javascript_include_tag "application" %>
+  <%= csrf_meta_tags %>
+  <% metas.each do |meta| %>
+    <meta <% meta.each { |attr,value| %><%= attr %>="<%= value %>" <% } %>/>
+  <% end %>
+
+  <link rel="shortcut icon" href="/favicon.png">
+  <link rel="search" type="application/opensearchdescription+xml" href="http://www.emoticode.net/opensearch.xml" title="EmotiCODE Search"/>
+  <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,400,300,600' rel='stylesheet' type='text/css'>
+</head>
+<body>
+
+<%= render :partial => "layouts/navbar" %>
+
+<% unless signed_in? %>
+  <%= render :partial => "sessions/new" %>
+<% end %>
+
+<% if current_page? root_url or current_page? recent_snippets_url or current_page? trending_snippets_url %>
+  <%= render :partial => 'home/heading' %>
+<% end %>
+
+<div id="wrapper">
+  <%= yield %>
+
+  <% if params[:show_stats] == "1" and signed_in? and @current_user.is_admin? %>
+      <%= modal_dialog 'stats', 'Statistics' do %>
+      <small>Page loaded in <%= ( Time.now - @time_start ) * 1000 %> ms</small> 
+      <%= query_diet_widget %>
+      <h4>Queries</h4>
+      <ul class="query_diet_list">
+        <%
+          # sort queries by execution time desc
+          sorted = QueryDiet::Logger.queries.sort { |a,b| a[1] < b[1] ? 1 : (a[1] > b[1] ? -1 : (a[1] <=> b[1])) }
+        %>
+        <% sorted.each do |query,time| %>
+          <li><small><%= query %> : <strong><%= time * 1000 %> ms</strong></small></li>
+        <% end %>
+      </ul>
+
+      <h4>Cache Stats</h4>
+      <ul class="query_diet_list">
+        <% Rails.cache.stats.each do |key,value| %>
+        <li><strong><%= key %></strong> : <%= key.start_with?('memory_') ? number_to_human_size(value) : value %></li>
+        <% end %>
+      </ul>
+    <% end %>
+    <script>$(function(){ $('#stats').modal(); });</script>
+  <% end %>
+</div>
+
+<footer id="footer">
+  <div id="fwrapper">
+    <ul>
+      <li>
+        <h3>Pages</h3>
+        <%= link_to 'About',    about_page_path %><br/>
+        <%= link_to 'Site Map', sitemap_page_path %><br/>
+        <%= link_to 'System Status', 'http://emoticode.status.io/' %><br/>
+        <%= link_to 'Contact',  contact_page_path %><br/>
+      </li>
+
+      <li>
+        <h3>Contacts</h3>
+        <a href="http://www.twitter.com/emoticodedotnet" target="_blank" title="EmotiCODE on Twitter">Twitter</a><br/>
+        <a href="http://plus.google.com/105672627985088123672" target="_blank" title="EmotiCODE on Google+">Google+</a><br/>
+        <a href="https://www.facebook.com/pages/EmotiCODE/475488679182886" target="_blank" title="EmotiCODE on Facebook">Facebook</a><br/>
+      </li>
+
+      <li>
+        <h3>Links</h3>
+        <a href="http://www.evilsocket.net" target="_blank" title="The author personal website">evilsocket.net</a><br/>
+        <a href="http://gibson-db.in/" target="_blank" title="Gibson Cache Server">gibson-db.in</a><br/>
+        <a href="http://www.bisontech.net/" target="_blank" title="BisonTech">bisontech.net</a><br/>
+        <a href="http://www.ajaxdomainfinder.net/" target="_blank" title="Ajax Domain Finder">ajaxdomainfinder.net</a></br/>
+      </li>
+    </ul>
+  </div>
+</footer>
+
+<% if flash[:alert] %>
+  <% error = flash[:alert] # make flash visible inside the yield'ed block %>
+  <%= modal_dialog 'flash', 'Alert' do %>
+    <%= error %>
+  <% end %>
+
+  <script>$(function(){ $('#flash').modal(); });</script>
+<% end %>
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-38685018-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+<% if @show_joinus %>
+  <%= modal_dialog 'joinus', 'Join Us!', :style => 'width:530px; height: 450px;' do %>
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr>
+        <td width="50%">
+          <div class="g-plus" data-width="230" data-href="//plus.google.com/105672627985088123672" data-rel="publisher"></div>
+          <br/>
+          <div class="fb-like-box" data-href="http://www.facebook.com/pages/EmotiCODE/475488679182886" data-width="230" data-show-faces="true" data-stream="false" data-header="false"></div>
+        </td>
+        <td>
+          <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/EmotiCodeDotNet" data-widget-id="376735076983111681">Tweets di @EmotiCodeDotNet</a>
+          <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+        </td>
+      </tr>
+    </table>
+  <% end %>
+  <script>$(function(){$('#joinus').modal();})</script>
+<% end %>
+
+</body>
+</html>

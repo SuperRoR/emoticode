@@ -1,0 +1,38 @@
+<section id="heading">
+  <div class="motto">Discover a whole new concept of source code.</div>
+  <div class="submotto">Search on over 50.000 code snippets!</div>
+
+  <form method="get" action="/search/"> 
+    <input type="text" x-webkit-speech name="what">
+  </form>
+</section>
+
+<section id="ruler">
+  <div class="inner">
+    <div class="tabber">
+      <% if signed_in? %>
+
+        <% if current_page?(root_url) %>
+          <%= link_to '<i class="icon-rss"></i>'.html_safe, stream_feed_url(:username => @current_user.username), :title => 'Your stream feed', :class => 'rss', :id => 'streamfeed' %>
+        <% end %>
+
+        <h3 class="tab">
+          <%= link_to 'Stream', root_path, :class => current_page?(root_url) ? 'current' : '' %>
+        </h3>
+        <h3 class="tab">
+          <%= link_to 'Trending', trending_snippets_path, :class => current_page?(trending_snippets_url) ? 'current' : '' %>
+        </h3>
+      <% else %>
+        <h3 class="tab">
+          <%= link_to 'Trending', root_path, :class => current_page?(root_url) ? 'current' : '' %>
+        </h3>
+      <% end %>
+      <h3 class="tab">
+        <%= link_to 'Recent', recent_snippets_path, :class => current_page?(recent_snippets_url) ? 'current' : '' %>
+      </h3>
+    </div>
+    <div class="small-column">
+      
+    </div>
+  </div>
+</section>

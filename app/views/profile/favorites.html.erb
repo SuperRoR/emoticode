@@ -1,0 +1,18 @@
+<section id="favorites-archive">
+  <div class="huge-column">
+    <h1>Your Favourite Snippets</h1>
+    <ul class="listing">
+      <% @favorites.each do |favorite| %>
+        <%= render :partial => "source/listing", :locals => { :source => favorite.source } %>
+      <% end %>
+    </ul>
+  </div>
+
+  <%= render :partial => 'layouts/sidebar', :locals => { with_heading: true } %>
+</section>
+
+<br style="clear:both"/>
+
+<section class="pager">
+  <%= will_paginate @favorites %>
+</section>

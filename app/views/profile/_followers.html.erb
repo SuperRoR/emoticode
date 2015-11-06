@@ -1,0 +1,16 @@
+<div id="sources">
+  <% if @followers.any? %>
+    <ul class="listing">
+      <%= render :partial => "user/follower", :collection => @followers, :as => 'user' %>
+    </ul>
+    <br style="clear:both;"/>
+    <section class="pager">
+      <%= will_paginate @followers %>
+    </section>
+  <% else %>
+    <center>
+      <h3><%= @user.username %> isn't followed by anyone yet :/</h3>
+    </center>
+  <% end %>
+  <br style="clear:both;"/>
+</div>

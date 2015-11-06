@@ -1,0 +1,18 @@
+<section id="blog">
+  <div class="medium-column">
+    <div class="headblock blog_archive">
+      <h1>
+        <%= link_to '<i class="icon-rss"></i>'.html_safe, blog_feed_path, :title => "Blog RSS feed.", :class => 'rss-big' %>                
+        Blog
+      </h1>
+      <% if @posts.any? %>
+        <ul id="blog_archive">
+          <%= render :partial => "blog/posts/listing", :collection => @posts, :as => 'post' %>      
+        </ul>
+      <% else %>
+        Nothing posted yet.
+      <% end %>
+    </div>
+  </div>
+  <%= render :partial => 'layouts/sidebar' %>  
+</section>
